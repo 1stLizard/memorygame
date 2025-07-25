@@ -31,9 +31,9 @@ export default function Home() {
   const [attempts, setAttempts] = useState(0);
   const [timer, setTimer] = useState(0);
   const [isRunning, setIsRunning] = useState(false);
+  const [isGameOver, setIsGameOver] = useState(false);
   const [rankings, setRankings] = useState<RankingEntry[]>([]);
 
-  // Cronómetro
   useEffect(() => {
     let interval: NodeJS.Timeout;
     if (isRunning) {
@@ -57,10 +57,11 @@ export default function Home() {
     setAttempts(0);
     setTimer(0);
     setIsRunning(true);
+    setIsGameOver(false);
   };
 
   const handleCardClick = (index: number) => {
-    if (selected.length === 2 || selected.includes(index)) return;
+    if (selected.length === 2 || selected.includes(index) || isGameOver) return;
 
     const newSelected = [...selected, index];
     setSelected(newSelected);
@@ -73,8 +74,16 @@ export default function Home() {
         if (isMatch) {
           setMatchedIds((prev) => [...prev, cards[first].id, cards[second].id]);
         }
+
+        const nextAttempts = attempts + 1;
+        setAttempts(nextAttempts);
         setSelected([]);
-        setAttempts((prev) => prev + 1);
+
+        // Limitar a 7 intentos
+        if (nextAttempts >= 7 && matchedIds.length !== cards.length - 2) {
+          setIsGameOver(true);
+          setIsRunning(false);
+        }
       }, 1000);
     }
   };
@@ -84,10 +93,12 @@ export default function Home() {
     if (allMatched) {
       setIsRunning(false);
       const newEntry = { time: timer, attempts };
-      const updated = [...rankings, newEntry].sort((a, b) => {
-        if (a.time === b.time) return a.attempts - b.attempts;
-        return a.time - b.time;
-      }).slice(0, 5);
+      const updated = [...rankings, newEntry]
+        .sort((a, b) => {
+          if (a.time === b.time) return a.attempts - b.attempts;
+          return a.time - b.time;
+        })
+        .slice(0, 5);
       setRankings(updated);
       localStorage.setItem("memorama-rankings", JSON.stringify(updated));
     }
@@ -99,7 +110,7 @@ export default function Home() {
 
       <div className="flex justify-between items-center mb-6 max-w-4xl mx-auto">
         <div>⏱️ Tiempo: {timer}s</div>
-        <div>❌ Intentos: {attempts}</div>
+        <div>❌ Intentos: {attempts} / 7</div>
         <button
           onClick={resetGame}
           className="bg-yellow-400 text-black px-4 py-2 rounded-xl hover:bg-yellow-300 transition"
@@ -107,6 +118,12 @@ export default function Home() {
           Reiniciar
         </button>
       </div>
+
+      {isGameOver && (
+        <div className="text-center text-red-400 text-xl font-bold mb-6">
+          ❌ ¡Fin del juego! Has alcanzado el límite de intentos.
+        </div>
+      )}
 
       <div className="grid grid-cols-4 gap-4 max-w-4xl mx-auto">
         {cards.map((card, index) => {
@@ -116,7 +133,9 @@ export default function Home() {
             <div
               key={index}
               onClick={() => handleCardClick(index)}
-              className="cursor-pointer border-4 border-yellow-400 rounded-xl overflow-hidden shadow-xl transition-transform duration-300"
+              className={`cursor-pointer border-4 rounded-xl overflow-hidden shadow-xl transition-transform duration-300 
+                ${isFlipped ? "border-green-400" : "border-yellow-400"} 
+                ${isGameOver ? "opacity-50 pointer-events-none" : ""}`}
             >
               <img
                 src={isFlipped ? card.image : "/images/t800.png"}
