@@ -36,7 +36,8 @@ export default function MemoryGame() {
   const [endTime, setEndTime] = useState<number | null>(null);
   const [ranking, setRanking] = useState<RankingEntry[]>([]);
   const [gameOver, setGameOver] = useState(false);
-  const MAX_ATTEMPTS = 12;
+  const [showCredits, setShowCredits] = useState(false);
+  const MAX_ATTEMPTS = 18;
 
   useEffect(() => {
     if (flipped.length === 2) {
@@ -46,9 +47,9 @@ export default function MemoryGame() {
         const isMatch = cards[first] === cards[second];
 
         if (isMatch) {
-          setSolved(prev => [...prev, first, second]);
+          setSolved((prev) => [...prev, first, second]);
         } else {
-          setFailures(prev => {
+          setFailures((prev) => {
             const newFail = prev + 1;
             if (newFail >= MAX_ATTEMPTS) {
               setGameOver(true);
@@ -107,7 +108,7 @@ export default function MemoryGame() {
   };
 
   return (
-    <div className="text-center p-6 bg-black min-h-screen text-white">
+    <div className="text-center p-6 bg-black min-h-screen text-white relative">
       <h1 className="text-3xl font-bold mb-4">🧠 Juego de Memoria</h1>
 
       {gameOver && solved.length === cards.length && (
@@ -155,6 +156,13 @@ export default function MemoryGame() {
         Reanudar
       </button>
 
+      <button
+        onClick={() => setShowCredits(true)}
+        className="mt-4 ml-4 px-6 py-3 bg-gray-700 text-white text-lg rounded-md hover:bg-gray-800 transition"
+      >
+        Créditos
+      </button>
+
       {/* Tabla de ranking */}
       <div className="mt-10">
         <h2 className="text-2xl font-semibold mb-4">🏆 Ranking</h2>
@@ -184,6 +192,31 @@ export default function MemoryGame() {
           </tbody>
         </table>
       </div>
+
+      {/* Modal Créditos */}
+      {showCredits && (
+        <div className="fixed inset-0 bg-black bg-opacity-70 flex justify-center items-center z-50">
+          <div className="bg-gray-900 rounded-lg p-6 max-w-sm text-left relative">
+            <h3 className="text-xl font-bold mb-4">Créditos</h3>
+            <p className="mb-2">Desarrollador: Marcos Maya</p>
+            <p className="mb-2">Proyecto: Juego de Memoria en Next.js</p>
+            <p className="mb-4">Imágenes: Carpeta /public/memory-cards</p>
+            <button
+              onClick={() => setShowCredits(false)}
+              className="absolute top-2 right-2 text-gray-400 hover:text-white"
+              aria-label="Cerrar créditos"
+            >
+              ✖
+            </button>
+            <button
+              onClick={() => setShowCredits(false)}
+              className="mt-2 px-4 py-2 bg-blue-600 rounded hover:bg-blue-700 text-white"
+            >
+              Cerrar
+            </button>
+          </div>
+        </div>
+      )}
     </div>
   );
 }
