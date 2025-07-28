@@ -18,7 +18,6 @@ const generateDeck = () => {
     "Carta-SourceSansPro-1.png",
     "CartaStrangeloEdessa.png",
   ];
-
   const deck = [...memoryCards, ...memoryCards];
   return deck.sort(() => Math.random() - 0.5);
 };
@@ -32,7 +31,7 @@ export default function MemoryGame() {
   const [cards, setCards] = useState<string[]>(generateDeck());
   const [flipped, setFlipped] = useState<number[]>([]);
   const [solved, setSolved] = useState<number[]>([]);
-  const [attempts, setAttempts] = useState(0);
+  const [failures, setFailures] = useState(0); // SOLO los fallos
   const [startTime, setStartTime] = useState<number | null>(null);
   const [endTime, setEndTime] = useState<number | null>(null);
   const [ranking, setRanking] = useState<RankingEntry[]>([]);
@@ -41,13 +40,23 @@ export default function MemoryGame() {
 
   useEffect(() => {
     if (flipped.length === 2) {
+      const [first, second] = flipped;
+
       setTimeout(() => {
-        const [first, second] = flipped;
-        if (cards[first] === cards[second]) {
-          setSolved([...solved, ...flipped]);
+        const isMatch = cards[first] === cards[second];
+
+        if (isMatch) {
+          setSolved(prev => [...prev, first, second]);
         } else {
-          setAttempts(prev => prev + 1);
+          setFailures(prev => {
+            const newFail = prev + 1;
+            if (newFail >= MAX_ATTEMPTS) {
+              setGameOver(true);
+            }
+            return newFail;
+          });
         }
+
         setFlipped([]);
       }, 1000);
     }
@@ -58,17 +67,15 @@ export default function MemoryGame() {
       const timeTaken = Date.now() - (startTime ?? Date.now());
       const newEntry: RankingEntry = {
         time: Math.floor(timeTaken / 1000),
-        attempts,
+        attempts: failures,
       };
       const updatedRanking = [...ranking, newEntry];
       setRanking(updatedRanking);
       localStorage.setItem("ranking", JSON.stringify(updatedRanking));
       setEndTime(Date.now());
       setGameOver(true);
-    } else if (attempts >= MAX_ATTEMPTS) {
-      setGameOver(true);
     }
-  }, [solved, attempts]);
+  }, [solved]);
 
   useEffect(() => {
     const savedRanking = localStorage.getItem("ranking");
@@ -93,7 +100,7 @@ export default function MemoryGame() {
     setCards(generateDeck());
     setFlipped([]);
     setSolved([]);
-    setAttempts(0);
+    setFailures(0);
     setStartTime(null);
     setEndTime(null);
     setGameOver(false);
@@ -107,11 +114,13 @@ export default function MemoryGame() {
         <h2 className="text-green-500 p-2 text-xl">¡Ganaste! 🎉</h2>
       )}
 
-      {gameOver && attempts >= MAX_ATTEMPTS && (
+      {gameOver && failures >= MAX_ATTEMPTS && (
         <h2 className="text-red-500 p-2 text-xl">¡Perdiste! 😢</h2>
       )}
 
-      <p className="text-lg mb-4">Intentos fallidos: {attempts} / {MAX_ATTEMPTS}</p>
+      <p className="text-lg mb-4">
+        Intentos fallidos: {failures} / {MAX_ATTEMPTS}
+      </p>
 
       <div className="grid grid-cols-4 gap-[40px] justify-center mb-6">
         {cards.map((card, index) => (
