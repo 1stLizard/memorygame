@@ -31,13 +31,12 @@ export default function MemoryGame() {
   const [cards, setCards] = useState<string[]>(generateDeck());
   const [flipped, setFlipped] = useState<number[]>([]);
   const [solved, setSolved] = useState<number[]>([]);
-  const [failures, setFailures] = useState(0); // SOLO los fallos
+  const [failures, setFailures] = useState(0);
   const [startTime, setStartTime] = useState<number | null>(null);
   const [endTime, setEndTime] = useState<number | null>(null);
   const [ranking, setRanking] = useState<RankingEntry[]>([]);
   const [gameOver, setGameOver] = useState(false);
   const [showCredits, setShowCredits] = useState(false);
-  const MAX_ATTEMPTS = 18;
 
   useEffect(() => {
     if (flipped.length === 2) {
@@ -49,13 +48,7 @@ export default function MemoryGame() {
         if (isMatch) {
           setSolved((prev) => [...prev, first, second]);
         } else {
-          setFailures((prev) => {
-            const newFail = prev + 1;
-            if (newFail >= MAX_ATTEMPTS) {
-              setGameOver(true);
-            }
-            return newFail;
-          });
+          setFailures((prev) => prev + 1);
         }
 
         setFlipped([]);
@@ -108,27 +101,32 @@ export default function MemoryGame() {
   };
 
   return (
-    <div className="text-center p-6 bg-black min-h-screen text-white relative">
+    <div className="text-center p-6 bg-black min-h-screen text-white relative overflow-hidden">
       <h1 className="text-3xl font-bold mb-4">🧠 Juego de Memoria</h1>
 
+      {/* Modal de victoria */}
       {gameOver && solved.length === cards.length && (
-        <h2 className="text-green-500 p-2 text-xl">¡Ganaste! 🎉</h2>
+        <div className="fixed inset-0 flex items-center justify-center bg-black bg-opacity-50 z-50">
+          <div className="bg-white bg-opacity-90 text-black p-8 rounded-xl shadow-lg text-center max-w-sm">
+            <h2 className="text-2xl font-bold mb-4">🎉 ¡Felicidades! 🎉</h2>
+            <p className="text-lg mb-6">Lo has logrado, completaste el juego.</p>
+            <button
+              onClick={resetGame}
+              className="px-6 py-2 bg-blue-600 text-white rounded-md hover:bg-blue-700"
+            >
+              Jugar de nuevo
+            </button>
+          </div>
+        </div>
       )}
 
-      {gameOver && failures >= MAX_ATTEMPTS && (
-        <h2 className="text-red-500 p-2 text-xl">¡Perdiste! 😢</h2>
-      )}
-
-      <p className="text-lg mb-4">
-        Intentos fallidos: {failures} / {MAX_ATTEMPTS}
-      </p>
-
-      <div className="grid grid-cols-4 gap-[40px] justify-center mb-6">
+      {/* Tablero de cartas */}
+      <div className="grid grid-cols-6 gap-[10px] justify-center mb-6">
         {cards.map((card, index) => (
           <div
             key={index}
             onClick={() => handleClick(index)}
-            className="relative w-[180px] h-[200px] bg-gray-300 rounded-xl shadow-lg cursor-pointer"
+            className="relative w-[100px] h-[120px] bg-gray-300 rounded-xl shadow-lg cursor-pointer"
           >
             {flipped.includes(index) || solved.includes(index) ? (
               <Image

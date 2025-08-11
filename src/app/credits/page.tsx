@@ -59,14 +59,14 @@ export default function CreditsPage() {
   const router = useRouter();
 
   const collaborators = [
-    { name: "Kevin Cortez Cruz", role: "Ing. Sistemas", img: "/img/hiram.jpg" },
-    { name: "Alan Ivan Gutiérrez Sanchez", role: "Ing. Sistemas", img: "/img/alan.jpg" },
-    { name: "Marcos Manuel Maya Sanchez", role: "Ing. sistemas", img: "/img/user3.jpg" },
-    { name: "Carlos Pérez", role: "QA Tester", img: "/img/user4.jpg" },
-    { name: "Laura Torres", role: "Frontend Dev", img: "/img/user5.jpg" },
-    { name: "Javier Gómez", role: "Backend Dev", img: "/img/user6.jpg" },
-    { name: "Ana Fernández", role: "Soporte Técnico", img: "/img/user7.jpg" },
-    { name: "Miguel Ruiz", role: "Documentación", img: "/img/user8.jpg" },
+    { name: "Cortez Cruz Kevin", role: "Ing. Sistemas", img: "/img/kevin.jpg" },
+    { name: "Gutierrez Sanchez Alan Ivan", role: "Ing. Sistemas", img: "/img/alan.jpg" },
+    { name: "Marcos Manuel Maya Sanchez", role: "Ing. sistemas", img: "/img/marcos.jpg" },
+    { name: "Dominguez Chanona Joshep", role: "Lic. Diseño Grafico", img: "/img/joshep.jpg" },
+    { name: "Dorantes Arriaga Iván", role: "Lic. Diseño Grafico", img: "/img/ivan.jpg" },
+    { name: "Juarez Nuñez Yessenia", role: "Lic. Diseño Grafico", img: "/img/jessenia.jpg" },
+    { name: "Quezada Sosa Sergio Alberto", role: "Lic. Diseño Grafico", img: "/img/alberto.jpg" },
+    { name: "Solis Añorve Mayra", role: "Lic. Diseño Grafico", img: "/img/mayra.jpg" },
   ];
 
   return (
